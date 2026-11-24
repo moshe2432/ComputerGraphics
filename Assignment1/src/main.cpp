@@ -99,9 +99,9 @@ Image Sketch_HalfTone(const Image &image)
             }
             else if (grayValue < 3 * 255 / 5)
             {
-                bw.Set(x * 2, y * 2, 0, 0);
+                bw.Set(x * 2, y * 2, 0, 255);
                 bw.Set(x * 2 + 1, y * 2, 0, 0);
-                bw.Set(x * 2, y * 2 + 1, 0, 255);
+                bw.Set(x * 2, y * 2 + 1, 0, 0);
                 bw.Set(x * 2 + 1, y * 2 + 1, 0, 255);
             }
             else if (grayValue < 4 * 255 / 5)
@@ -142,7 +142,7 @@ int main()
         bw.Save("FloydSteinberg.png", 15);
 
         Image sketch = Sketch_HalfTone(gray);
-        sketch.Save("Sketch_HalfTone.png", 15);
+        sketch.Save("Halftone.png", 1, "Halftone.txt");
     }
     catch (const std::exception &e)
     {

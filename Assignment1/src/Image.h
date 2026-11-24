@@ -15,11 +15,13 @@ public:
     static Image Load(const std::string& path);
 
     // Saves the image as a PNG at `path`. If `textMaxValue` is >= 0, also writes a
-    // debug .txt file next to it (same name, .txt extension): one row per image row,
-    // values comma-separated with no spaces, each channel-0 byte rescaled from 0-255
-    // down to 0-textMaxValue (e.g. 255 for grayscale, 1 for black/white, 15 for
-    // 16-level images).
-    void Save(const std::string& path, int textMaxValue = -1) const;
+    // debug .txt file (one row per image row, values comma-separated with no spaces,
+    // each channel-0 byte rescaled from 0-255 down to 0-textMaxValue, e.g. 255 for
+    // grayscale, 1 for black/white, 15 for 16-level images). By default the .txt path
+    // is `path` with its extension replaced by ".txt"; pass `textPath` to use a
+    // different name (needed since the assignment's required filenames don't always
+    // share a base name, e.g. "Haftone.png" / "Halftone.txt").
+    void Save(const std::string& path, int textMaxValue = -1, const std::string& textPath = "") const;
 
     int Width() const { return width; }
     int Height() const { return height; }

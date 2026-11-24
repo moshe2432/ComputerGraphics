@@ -44,13 +44,13 @@ Image Image::Load(const std::string& path) {
     return image;
 }
 
-void Image::Save(const std::string& path, int textMaxValue) const {
+void Image::Save(const std::string& path, int textMaxValue, const std::string& textPath) const {
     const int stride = width * channels;
     stbi_write_png(path.c_str(), width, height, channels, data.data(), stride);
 
     if (textMaxValue < 0) return;
 
-    std::ofstream out(WithTextExtension(path));
+    std::ofstream out(textPath.empty() ? WithTextExtension(path) : textPath);
     if (!out) {
         throw std::runtime_error("Failed to open text output for: " + path);
     }
