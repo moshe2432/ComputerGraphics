@@ -14,7 +14,10 @@
                 "src/Image.cpp",
                 "src/stb_impl.cpp",
                 "-o",
-                "assignment1.exe"
+                "assignment1.exe",
+                "-static-libgcc",
+                "-static-libstdc++",
+                "-static"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
