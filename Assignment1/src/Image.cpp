@@ -1,10 +1,23 @@
 #include "Image.h"
 
 #include <algorithm>
+#include <cmath>
+#include <fstream>
 #include <stdexcept>
 
 #include "stb_image.h"
 #include "stb_image_write.h"
+
+namespace {
+std::string WithTextExtension(const std::string& path) {
+    size_t slash = path.find_last_of("/\\");
+    size_t dot = path.find_last_of('.');
+    if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) {
+        return path + ".txt";
+    }
+    return path.substr(0, dot) + ".txt";
+}
+}  // namespace
 
 unsigned char Clip(int value) {
     if (value < 0) return 0;
@@ -31,9 +44,26 @@ Image Image::Load(const std::string& path) {
     return image;
 }
 
-void Image::Save(const std::string& path) const {
+void Image::Save(const std::string& path, int textMaxValue) const {
     const int stride = width * channels;
     stbi_write_png(path.c_str(), width, height, channels, data.data(), stride);
+
+    if (textMaxValue < 0) return;
+
+    std::ofstream out(WithTextExtension(path));
+    if (!out) {
+        throw std::runtime_error("Failed to open text output for: " + path);
+    }
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            int raw = Get(x, y, 0);
+            int scaled = static_cast<int>(std::lround(raw * textMaxValue / 255.0));
+            if (x > 0) out << ',';
+            out << scaled;
+        }
+        out << '\n';
+    }
 }
 
 unsigned char Image::Get(int x, int y, int c) const {

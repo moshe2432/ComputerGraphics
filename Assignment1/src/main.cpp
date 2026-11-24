@@ -32,7 +32,7 @@ int main()
                   << " B:" << (int)p0[2] << " A:" << (int)p0[3] << "\n";
 
         Image gray = GrayScale(image);
-        gray.Save("Lenna_gray.png");
+        gray.Save("Grayscale.png", 255);
     }
     catch (const std::exception &e)
     {

@@ -14,7 +14,12 @@ public:
     // as suggested by the assignment's stbi_load guidance.
     static Image Load(const std::string& path);
 
-    void Save(const std::string& path) const;
+    // Saves the image as a PNG at `path`. If `textMaxValue` is >= 0, also writes a
+    // debug .txt file next to it (same name, .txt extension): one row per image row,
+    // values comma-separated with no spaces, each channel-0 byte rescaled from 0-255
+    // down to 0-textMaxValue (e.g. 255 for grayscale, 1 for black/white, 15 for
+    // 16-level images).
+    void Save(const std::string& path, int textMaxValue = -1) const;
 
     int Width() const { return width; }
     int Height() const { return height; }
