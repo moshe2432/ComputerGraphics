@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build (g++)",
+            "type": "shell",
+            "command": "C:/Users/moshe/tools/mingw64/bin/g++.exe",
+            "args": [
+                "-std=c++17",
+                "-Wall",
+                "-O2",
+                "-Iexternal",
+                "src/main.cpp",
+                "src/Image.cpp",
+                "src/stb_impl.cpp",
+                "-o",
+                "assignment1.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        }
+    ]
+}
