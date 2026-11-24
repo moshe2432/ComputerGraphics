@@ -75,6 +75,54 @@ Image Floyd_SteinbergDithering(const Image &image)
     return bw;
 }
 
+Image Sketch_HalfTone(const Image &image)
+{
+    Image bw(image.Width() * 2, image.Height() * 2, 1);
+    for (int y = 0; y < image.Height(); ++y)
+    {
+        for (int x = 0; x < image.Width(); ++x)
+        {
+            unsigned char grayValue = image.Get(x, y, 0);
+            if (grayValue < 255 / 5)
+            {
+                bw.Set(x * 2, y * 2, 0, 0);
+                bw.Set(x * 2 + 1, y * 2, 0, 0);
+                bw.Set(x * 2, y * 2 + 1, 0, 0);
+                bw.Set(x * 2 + 1, y * 2 + 1, 0, 0);
+            }
+            else if (grayValue < 2 * 255 / 5)
+            {
+                bw.Set(x * 2, y * 2, 0, 0);
+                bw.Set(x * 2 + 1, y * 2, 0, 0);
+                bw.Set(x * 2, y * 2 + 1, 0, 0);
+                bw.Set(x * 2 + 1, y * 2 + 1, 0, 255);
+            }
+            else if (grayValue < 3 * 255 / 5)
+            {
+                bw.Set(x * 2, y * 2, 0, 0);
+                bw.Set(x * 2 + 1, y * 2, 0, 0);
+                bw.Set(x * 2, y * 2 + 1, 0, 255);
+                bw.Set(x * 2 + 1, y * 2 + 1, 0, 255);
+            }
+            else if (grayValue < 4 * 255 / 5)
+            {
+                bw.Set(x * 2, y * 2, 0, 0);
+                bw.Set(x * 2 + 1, y * 2, 0, 255);
+                bw.Set(x * 2, y * 2 + 1, 0, 255);
+                bw.Set(x * 2 + 1, y * 2 + 1, 0, 255);
+            }
+            else
+            {
+                bw.Set(x * 2, y * 2, 0, 255);
+                bw.Set(x * 2 + 1, y * 2, 0, 255);
+                bw.Set(x * 2, y * 2 + 1, 0, 255);
+                bw.Set(x * 2 + 1, y * 2 + 1, 0, 255);
+            }
+        }
+    }
+    return bw;
+}
+
 int main()
 {
     try
@@ -91,7 +139,10 @@ int main()
         gray.Save("Grayscale.png", 255);
 
         Image bw = Floyd_SteinbergDithering(gray);
-        bw.Save("BW.png", 1);
+        bw.Save("FloydSteinberg.png", 15);
+
+        Image sketch = Sketch_HalfTone(gray);
+        sketch.Save("Sketch_HalfTone.png", 15);
     }
     catch (const std::exception &e)
     {
