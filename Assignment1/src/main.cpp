@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <cmath>
 #include "Image.h"
 
 Image GrayScale(const Image &image)
@@ -11,12 +11,73 @@ Image GrayScale(const Image &image)
         for (int x = 0; x < image.Width(); ++x)
         {
             const unsigned char *p = image.PixelPtr(x, y);
-            unsigned char grayValue = static_cast<unsigned char>(0.299f * p[0] + 0.587f * p[1] + 0.114f * p[2]);
+            unsigned char grayValue = Clip(static_cast<unsigned char>(0.299f * p[0] + 0.587f * p[1] + 0.114f * p[2]) + 0.5f);
             gray.Set(x, y, 0, grayValue);
         }
     }
 
     return gray;
+}
+
+Image FloyedSteinbergScale(const Image &grayImage)
+{
+    // we are going to change the image from 256 intensity grayscale values to 16 intensity grayscale values, so we need to divide by 16 and round to the nearest integer
+    const int width = grayImage.Width();
+    const int height = grayImage.Height();
+    Image out(width, height, 1);
+
+    std::vector<float> work(static_cast<size_t>(width) * height);
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            work[y * width + x] = static_cast<float>(grayImage.Get(x, y, 0));
+        }
+    }
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            const float oldPixel = work[y * width + x];
+            // the nearest of the 16 levels is 0, 17, 34, ..., 255.
+            int level = static_cast<int>(std::floor((oldPixel / 17.0f) + 0.5f));
+            if (level < 0)
+                level = 0;
+            if (level > 15)
+                level = 15;
+            const float choosen = level * 17.0f;
+            out.Set(x, y, 0, static_cast<unsigned char>(choosen));
+
+            const float error = oldPixel - choosen;
+
+            // which of the four nighbours exist?
+            const bool hasRight = x + 1 < width;
+            const bool hasBelow = y + 1 < height;
+            const bool hasLeft = x > 0;
+
+            if (hasRight && hasBelow && hasLeft)
+            {
+                // inside the picture, the floyd-steinberg weights.
+                work[y * width + (x + 1)] += error * (7.0f / 16.0f);
+                work[(y + 1) * width + (x - 1)] += error * (3.0f / 16.0f);
+                work[(y + 1) * width + x] += error * (5.0f / 16.0f);
+                work[(y + 1) * width + (x + 1)] += error * (1.0f / 16.0f);
+            }
+            else
+            {
+                // on the edge, equal shares for the neighbours that exist.
+                const int count = (hasRight ? 1 : 0) + (hasBelow ? 1 : 0) + (hasLeft && hasBelow ? 1 : 0) + (hasRight && hasBelow ? 1 : 0);
+                if (hasRight)
+                    work[y * width + (x + 1)] += error / count;
+                if (hasBelow)
+                    work[(y + 1) * width + x] += error / count;
+                if (hasLeft && hasBelow)
+                    work[(y + 1) * width + (x - 1)] += error / count;
+            }
+        }
+    }
+    return out;
 }
 
 int main()
@@ -32,14 +93,17 @@ int main()
                   << " B:" << (int)p0[2] << " A:" << (int)p0[3] << "\n";
 
         Image gray = GrayScale(image);
-        gray.Save("Lenna_gray.png");
+        gray.Save("Grayscale.png");
+
+        Image floydSteinberg = FloyedSteinbergScale(gray);
+        floydSteinberg.Save("FloyedSteinberg.png");
     }
     catch (const std::exception &e)
     {
         std::cerr << "Error: " << e.what() << "\n";
         return 1;
     }
-
+    std::cout << "Done. Press Enter to exit.\n";
     std::cin.get();
     return 0;
 }
