@@ -19,6 +19,38 @@ Image GrayScale(const Image &image)
     return gray;
 }
 
+Image Halftone(const Image &grayImage)
+{
+    const int width = grayImage.Width();
+    const int height = grayImage.Height();
+    Image out(2 * width, 2 * height, 1);
+
+    // pattern[level] = the 2x2 pattern for the given level, in order
+    // top-left, top-right, bottom-left, bottom-right. 1 = white, 0 = black.
+    const unsigned char pattern[5][4] = {
+        {0, 0, 0, 0}, // level 0
+        {0, 0, 1, 0}, // level 1
+        {0, 1, 1, 0}, // level 2
+        {0, 1, 1, 1}, // level 3
+        {1, 1, 1, 1}  // level 4
+    };
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            const unsigned char grayValue = grayImage.Get(x, y, 0) * 5 / 256; // 0 .. 4
+            const unsigned char *block = pattern[grayValue];
+
+            // one input pixel becomes a 2x2 block of output pixels at once
+            out.Set(2 * x, 2 * y, 0, block[0] * 255);
+            out.Set(2 * x + 1, 2 * y, 0, block[1] * 255);
+            out.Set(2 * x, 2 * y + 1, 0, block[2] * 255);
+            out.Set(2 * x + 1, 2 * y + 1, 0, block[3] * 255);
+        }
+    }
+    return out;
+}
+
 Image FloyedSteinbergScale(const Image &grayImage)
 {
     // we are going to change the image from 256 intensity grayscale values to 16 intensity grayscale values, so we need to divide by 16 and round to the nearest integer
@@ -94,6 +126,9 @@ int main()
 
         Image gray = GrayScale(image);
         gray.Save("Grayscale.png");
+
+        Image halftone = Halftone(gray);
+        halftone.Save("Halftone.png");
 
         Image floydSteinberg = FloyedSteinbergScale(gray);
         floydSteinberg.Save("FloyedSteinberg.png");
