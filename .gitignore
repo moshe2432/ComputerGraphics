@@ -1,0 +1,28 @@
+# ---- Build products ---------------------------------------------------------
+# The compiled program (Makefile target "assignment1", "assignment1.exe" on Windows)
+/Assignment*/assignment[0-9]
+*.exe
+*.o
+*.obj
+*.dSYM/
+
+# CMake build folders and files
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# ---- Program output ---------------------------------------------------------
+# Every picture and text file the program writes (Grayscale.png, Canny.png,
+# Halftone.png, FloyedSteinberg.png and their .txt files, test pictures, ...).
+# The input picture and the CMake file stay in the repository.
+/Assignment*/*.png
+!/Assignment*/Lenna.png
+/Assignment*/*.txt
+!/Assignment*/CMakeLists.txt
+
+# ---- Operating system and editor leftovers ----------------------------------
+.DS_Store
+Thumbs.db
+*.swp
